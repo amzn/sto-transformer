@@ -150,36 +150,12 @@ ps -o etime= -p <pid>
 
 # Debug & run on laptop
 We debug the model on laptop on small data in Pycharm IDE. The settings are listed as follows:
-(1) IMDB
 ```
 Name                            Parameters
 IMDB-pre-tf                     --mode=pre --model_type=tf --debug=1
 
 IMDB-run-tf                     --mode=uncertain-train-test --model_type=tf-sto  --debug=1
 IMDB-run-tf-sto                 --mode=uncertain-train-test --model_type=tf-sto --debug=1
-```
-(2) DST
-```
-Name                            Parameters
-DST-EN-lstm                     --model_type=lstm --exp_name=dst_lstm_en --trans_lang=en --bidirection
-DST-EN-tf                       --model_type=tf --exp_name=dst_tf_en --trans_lang=en --bidirection
-DST-EN-tf-sto                   --model_type=tf-sto --exp_name=dst_tf_en --trans_lang=en --bidirection
-
-DST-DE-lstm                     --model_type=lstm --exp_name=dst_lstm_de --trans_lang=de --bidirection  --mix_train
-DST-DE-tf                       --model_type=tf --exp_name=dst_tf_de --trans_lang=de --bidirection  --mix_train
-DST-DE-tf-sto                   --model_type=tf-sto --exp_name=dst_tf_de --trans_lang=de --bidirection  --mix_train
-
-DST-IT-lstm                     --model_type=lstm --exp_name=dst_lstm_it --trans_lang=it --bidirection  --mix_train
-DST-IT-tf                       --model_type=tf --exp_name=dst_tf_it --trans_lang=it --bidirection  --mix_train
-DST-IT-tf-sto                   --model_type=tf-sto --exp_name=dst_tf_it --trans_lang=it --bidirection  --mix_train
-```
-(3) CTDS
-```
-CTDS-pre-babi-small-t5          --mode=pre --debug=1
-
-CTDS-run-babi-small-t5          --mode=uncertain-train-test --model_type=comemnn --debug=1
-CTDS-run-babi-small-t5-tf       --mode=uncertain-train-test --model_type=tf --debug=1
-CTDS-run-babi-small-t5-tf-sto   --mode=uncertain-train-test --model_type=tf-sto --debug=1
 ```
 
 # Reference
