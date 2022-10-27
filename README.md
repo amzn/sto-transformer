@@ -31,7 +31,7 @@ python code/IMDB/Run.py --mode=pre --model_name=IMDB --model_type=tf-sto --exp_n
 python code/IMDB/Run.py --mode=uncertain-train-test --model_name=IMDB --model_type=tf-sto --exp_name=single_t1  --debug=0
 ```
 
-More details can be found at [code/IMDB/README.md](https://github.com/amzn/sto-transformer/code/IMDB/README.md).
+More details can be found at [code/IMDB/README.md](https://github.com/amzn/sto-transformer/blob/main/code/IMDB/README.md).
 
 ### 4.2 Linguistic Acceptability
 1. Downloaded the CoLA dataset from the repository (https://github.com/pranavajitnair/CoLA)
@@ -39,8 +39,27 @@ More details can be found at [code/IMDB/README.md](https://github.com/amzn/sto-t
 ```bash
 python train.py --model_type sto_transformer  --inference True  --sto_transformer True --model_name dual --dual True
 ```
-More details can be found at [code/CoLA/README.md](https://github.com/amzn/sto-transformer/code/CoLA/README.md).
+More details can be found at [code/CoLA/README.md](https://github.com/amzn/sto-transformer/blob/main/code/CoLA/README.md).
 
+## Reference
+- Emails: 
+  - Jiahuan Pei, <jpei@amazon.com>
+  - Cheng Wang, <cwngam@amazon.com>
+  - György Szarvas, <szarvasg@amazon.com>
+- Paper
+  - [Direct link](https://assets.amazon.science/1a/48/cb3245fb448ba775f163f02c2e6b/transformer-uncertainty-estimation-with-hierarchical-stochastic-attention.pdf)
+  - Citation with bibtex
+```bibtex
+@inproceedings{pei2022transformer,
+    title={Transformer uncertainty estimation with hierarchical stochastic attention},
+    author={Pei, Jiahuan and Wang, Cheng and Szarvas, Gy{\"o}rgy},
+    booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+    volume={36},
+    number={10},
+    pages={11147--11155},
+    year={2022}
+}
+```
 ## Security
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.

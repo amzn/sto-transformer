@@ -157,7 +157,3 @@ IMDB-pre-tf                     --mode=pre --model_type=tf --debug=1
 IMDB-run-tf                     --mode=uncertain-train-test --model_type=tf-sto  --debug=1
 IMDB-run-tf-sto                 --mode=uncertain-train-test --model_type=tf-sto --debug=1
 ```
-
-# Reference
-- Code: <https://code.amazon.com/packages/Sto-transformer/trees/mainline)>
-- Email: Jiahuan Pei, <ppsunrise99@gmail.com>
