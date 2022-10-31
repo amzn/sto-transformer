@@ -3,7 +3,7 @@
     SPDX-License-Identifier: Apache-2.0
 """
 
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 @Function:
@@ -12,7 +12,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import pdb
 from common.Utils import weight_reset
 
 
@@ -32,11 +31,7 @@ class SelfAttention(nn.Module):
 
     def forward(self, query, key, value, mask=None):
         batch_size = query.size(0)
-        #pdb.set_trace()
         # bacth_size, attention len, n_heads, head_dim
-        # print('query_size=', query.size())
-        # print('key_size=', key.size())
-        # print('value_size=', value.size())
         Q = self.Q_linear(query.view(batch_size, -1, self.heads, self.head_dim))
         K = self.K_linear(key.view(batch_size, -1, self.heads, self.head_dim))
         V = self.V_linear(value.view(batch_size, -1, self.heads, self.head_dim))
@@ -51,7 +46,6 @@ class SelfAttention(nn.Module):
         out = torch.einsum("nhql,nlhd->nqhd", [attention, V]).reshape(
             batch_size, query.shape[1], self.heads * self.head_dim)
         out = self.FC_linear(out)
-        # pdb.set_trace()
         return out
 
     def reset_parameters(self):
@@ -59,6 +53,7 @@ class SelfAttention(nn.Module):
         self.K_linear.reset_parameters()
         self.Q_linear.reset_parameters()
         self.FC_linear.reset_parameters()
+
 
 class StoSelfAttention(nn.Module):
     def __init__(self, hidden_dim, heads, tau):
@@ -75,32 +70,22 @@ class StoSelfAttention(nn.Module):
 
         self.reset_parameters()
 
-
     def forward(self, query, key, value, mask=None):
         batch_size = query.size(0)
-        #pdb.set_trace()
-        # bacth_size, attention len, n_heads, head_dim
-        # print('query_size=', query.size())
-        # print('key_size=', key.size())
-        # print('value_size=', value.size())
-
         # [batch_size, sentence_len, heads, heads_dim]
         Q = self.Q_linear(query.view(batch_size, -1, self.heads, self.head_dim))
         K = self.K_linear(key.view(batch_size, -1, self.heads, self.head_dim))
         V = self.V_linear(value.view(batch_size, -1, self.heads, self.head_dim))
 
         key_out = torch.einsum("nqhd,nkhd->nhqk", [Q, K])  # batchx heads x query_sen_len, key_sen_len
-        #print('Q, K, V, key_out', Q.size(), K.size(), V.size(), key_out.size())
-        #pdb.set_trace()
+
         if mask is not None:
             key_out = key_out.masked_fill(mask == 0, float("-1e20"))
 
-        #attention = torch.softmax(key_out / (self.hidden_dim ** (1 / 2)), dim=3)
         sto_attention = F.gumbel_softmax(key_out, tau=self.tau, hard=False, dim=3)
         out = torch.einsum("nhql,nlhd->nqhd", [sto_attention, V]).reshape(
             batch_size, query.shape[1], self.heads * self.head_dim)
         out = self.FC_linear(out)
-        # pdb.set_trace()
         return out
 
     def reset_parameters(self):
@@ -118,8 +103,8 @@ class StoSelfDualAttention(nn.Module):
         self.head_dim = hidden_dim // heads
         self.tau1 = tau1
         self.tau2 = tau2
-        # self.centroid = torch.nn.Parameter(init_function(torch.empty(self.head_dim, k_centroid), a=-0.01, b=0.01), requires_grad=True)
-        self.centroid = torch.nn.Parameter(init_function(torch.empty(self.head_dim, k_centroid), a=-0.5, b=0.5), requires_grad=True)
+        self.centroid = torch.nn.Parameter(init_function(torch.empty(self.head_dim, k_centroid), a=-0.5, b=0.5),
+                                           requires_grad=True)
 
         self.V_linear = nn.Linear(self.head_dim, self.head_dim)
         self.K_linear = nn.Linear(self.head_dim, self.head_dim)
@@ -139,23 +124,15 @@ class StoSelfDualAttention(nn.Module):
         K_ = torch.einsum("nshd,dc->nshc", [K, self.centroid])
         prob = F.gumbel_softmax(K_, tau=self.tau1, hard=False, dim=-1)
         sto_K = torch.einsum("nshc,cd->nshd", [prob, self.centroid.T])
-        # print('*'*50)
-        # print(self.centroid)
-        # print('*' * 50)
-        # pdb.set_trace()
-        # print('Q, K, V', Q.size(), K.size(), V.size())
         key_out = torch.einsum("nqhd,nkhd->nhqk", [Q, sto_K])
-
 
         if mask is not None:
             key_out = key_out.masked_fill(mask == 0, float("-1e20"))
 
         sto_attention = F.gumbel_softmax(key_out, tau=self.tau2, hard=False, dim=3)
-        # sto_attention = torch.softmax(key_out / (self.hidden_dim ** (1 / 2)), dim=3)
         out = torch.einsum("nhql,nlhd->nqhd", [sto_attention, V]).reshape(
             batch_size, query.shape[1], self.heads * self.head_dim)
         out = self.FC_linear(out)
-        # pdb.set_trace()
         return out
 
     def reset_parameters(self):
@@ -190,8 +167,7 @@ class TransformerBlock(nn.Module):
         Returns:
 
         """
-        #pdb.set_trace()
-        attention = self.attention(query, key, value, mask)     # [batch_size, sentence_len, emb_dim]
+        attention = self.attention(query, key, value, mask)  # [batch_size, sentence_len, emb_dim]
         # Add skip connection, run through normalization and finally dropout
         x = self.dropout(self.norm1(attention + query))
         forward = self.feed_forward(x)
@@ -423,8 +399,6 @@ class TransformerEncoder(nn.Module):
     def reset_parameters(self) -> None:
         """pp added: Resets all trainable parameters of the module."""
         self.encoder.reset_parameters()
-        # self.input_projection.reset_parameters()
-        # self.output_projection.reset_parameters()
 
 
 class StoTransformerBlock(nn.Module):
@@ -436,7 +410,6 @@ class StoTransformerBlock(nn.Module):
         elif direction == 2:
             self.attention = StoSelfDualAttention(emb_dim, heads, tau1, tau2, k_centroid)
 
-        #print(self.centroid)
         self.tau1 = tau1
         self.tau2 = tau2
         self.norm1 = nn.LayerNorm(emb_dim)
@@ -449,22 +422,19 @@ class StoTransformerBlock(nn.Module):
         )
 
         self.dropout = nn.Dropout(dropout)
-        #self.reset_parameters()
 
     def forward(self, value, key, query, mask):
-        #print(self.centroid)
 
-        attention = self.attention(query, key, value, mask)                   # attention [batch_size, sentence_len, emb_dim]
-        #tensor_l_k = torch.matmul(attention, self.centroid)        # tensor_l_k [batch_size, sentence_len, k_centroid] <= [batch_size, sentence_len, emb_dim] * [emb_dim, k_centroid]
+        attention = self.attention(query, key, value, mask)  # attention [batch_size, sentence_len, emb_dim]
+        # tensor_l_k = torch.matmul(attention, self.centroid)        # tensor_l_k [batch_size, sentence_len, k_centroid] <= [batch_size, sentence_len, emb_dim] * [emb_dim, k_centroid]
         # option 1:
         # new_attention = torch.matmul(tensor_l_k, self.centroid.T)  # new_attention [batch_size, sentence_len, emb_dim] <= [batch_size, sentence_len, k_centroid] * [k_centroid, emb_dim]
         # option 2:
-        #new_attention = torch.matmul(F.gumbel_softmax(tensor_l_k, tau=self.tau, hard=False), self.centroid.T)  # new_attention [batch_size, sentence_len, emb_dim] <= [batch_size, sentence_len, k_centroid] * [k_centroid, emb_dim]
+        # new_attention = torch.matmul(F.gumbel_softmax(tensor_l_k, tau=self.tau, hard=False), self.centroid.T)  # new_attention [batch_size, sentence_len, emb_dim] <= [batch_size, sentence_len, k_centroid] * [k_centroid, emb_dim]
         # Add skip connection, run through normalization and finally dropout
-        x = self.dropout(self.norm1(attention + query))         # query [batch_size, sentence_len, emb_dim]
+        x = self.dropout(self.norm1(attention + query))  # query [batch_size, sentence_len, emb_dim]
         forward = self.feed_forward(x)
         out = self.dropout(self.norm2(forward + x))
-        #pdb.set_trace()
         return out
 
     def reset_parameters(self) -> None:
